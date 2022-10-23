@@ -1,13 +1,13 @@
 package com.project.geo.service;
 
+import com.project.geo.dao.Location;
 import com.project.geo.dao.LocationDAO;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
-import org.skife.jdbi.v2.sqlobject.CreateSqlObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class LocationService {
+public class LocationService {
 
     private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
 
@@ -21,12 +21,30 @@ public abstract class LocationService {
     private static final String UNEXPECTED_DELETE_ERROR = "An unexpected error occurred while deleting location.";
     private static final String LOCATION_NOT_FOUND = "Location id %s not found.";
 
-    @CreateSqlObject
-    abstract LocationDAO locationDAO();
+    private final LocationDAO locationDAO;
+
+    public LocationService(LocationDAO locationDAO) {
+        this.locationDAO = locationDAO;
+    }
+
+    public Location getLocation(String id) {
+        return locationDAO.findLocation(id);
+    }
+
+    public Location createLocationInfo(Location location) {
+        Location newLocation = new Location(location.getId(), location.getQuery(), location.getStatus(),
+                location.getCountry(), location.getCountryCode(), location.getRegion(),
+                location.getRegionName(), location.getCity(), location.getZip(),
+                location.getLat(), location.getLon(), location.getTimezone(),
+                location.getIsp(), location.getOrg(), location.getAs());
+        locationDAO.save(newLocation);
+        //return locationDAO().getLocation(locationDAO().lastInsertId());
+        return null;
+    }
 
     public String performHealthCheck() {
         try {
-            locationDAO();
+            return "good";
         } catch (UnableToObtainConnectionException ex) {
             return checkUnableToObtainConnectionException(ex);
         } catch (UnableToExecuteStatementException ex) {
@@ -34,7 +52,6 @@ public abstract class LocationService {
         } catch (Exception ex) {
             return UNEXPECTED_DATABASE_ERROR + ex.getCause().getLocalizedMessage();
         }
-        return null;
     }
 
     private String checkUnableToObtainConnectionException(UnableToObtainConnectionException ex) {

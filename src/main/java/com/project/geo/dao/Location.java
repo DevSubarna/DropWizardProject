@@ -2,25 +2,34 @@ package com.project.geo.dao;
 
 import lombok.*;
 
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Entity
+@Table(name = "geolocation")
 public class Location {
 
-    @NotNull
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+
     @NotBlank
+    @Column(name = "query")
     private String query;
+
     @NotBlank
+    @Column(name = "status")
     private String status;
+
     @NotBlank
+    @Column(name = "country")
     private String country;
-    @NotBlank
+    private String countryCode;
     private String region;
     private String regionName;
     private String city;
