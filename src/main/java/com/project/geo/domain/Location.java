@@ -1,9 +1,9 @@
-package com.project.geo.dao;
+package com.project.geo.domain;
 
 import lombok.*;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 
 @Setter
 @Getter
@@ -12,22 +12,27 @@ import javax.validation.constraints.NotBlank;
 @ToString
 @Entity
 @Table(name = "geolocation")
+//@NamedQueries({
+//        @NamedQuery(name = "com.project.geo.domain.Location.findByQuery",
+//                    query = "select l from geolocation where l.query like :query"),
+//        @NamedQuery(name = "com.project.geo.domain.Location.findById",
+//                query = "select l from geolocation where l.id like :id")
+//})
 public class Location {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    @NotEmpty
+    private String id;
 
-    @NotBlank
-    @Column(name = "query")
+    @NotEmpty
+//    @Column(name = "query")
     private String query;
 
-    @NotBlank
-    @Column(name = "status")
+//    @Column(name = "status")
     private String status;
 
-    @NotBlank
-    @Column(name = "country")
+//    @Column(name = "country")
     private String country;
     private String countryCode;
     private String region;

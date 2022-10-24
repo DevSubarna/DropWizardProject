@@ -12,6 +12,7 @@
         <maven.compiler.source>18</maven.compiler.source>
         <maven.compiler.target>18</maven.compiler.target>
         <dropwizard.version>2.0.22</dropwizard.version>
+<!--        <jdbi.version>3.0.1</jdbi.version>-->
     </properties>
 
     <dependencies>
@@ -20,16 +21,19 @@
             <artifactId>dropwizard-core</artifactId>
             <version>${dropwizard.version}</version>
         </dependency>
+
         <dependency>
             <groupId>io.dropwizard.modules</groupId>
             <artifactId>dropwizard-jdbi</artifactId>
-            <version>${dropwizard.version}</version>
+            <version>2.0.22</version>
         </dependency>
+
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-hibernate</artifactId>
             <version>${dropwizard.version}</version>
         </dependency>
+
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>

@@ -1,13 +1,18 @@
 package com.project.geo.service;
 
-import com.project.geo.dao.Location;
-import com.project.geo.dao.LocationDAO;
+import com.project.geo.domain.Location;
+import com.project.geo.dao.LocationDaoImpl;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
+import org.skife.jdbi.v2.sqlobject.CreateSqlObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LocationService {
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.Status;
+import java.util.Objects;
+
+public abstract class LocationService {
 
     private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
 
@@ -21,30 +26,55 @@ public class LocationService {
     private static final String UNEXPECTED_DELETE_ERROR = "An unexpected error occurred while deleting location.";
     private static final String LOCATION_NOT_FOUND = "Location id %s not found.";
 
-    private final LocationDAO locationDAO;
+    @CreateSqlObject
+    abstract LocationDaoImpl locationDaoImpl();
 
-    public LocationService(LocationDAO locationDAO) {
-        this.locationDAO = locationDAO;
+    public Location getLocation(Integer id) {
+        Location location = locationDaoImpl().getLocation(id);
+        logger.info(location.toString());
+        if (Objects.isNull(location)) {
+            throw new WebApplicationException(String.format(LOCATION_NOT_FOUND, id), Status.NOT_FOUND);
+        }
+        return location;
     }
 
-    public Location getLocation(String id) {
-        return locationDAO.findLocation(id);
+    public Location getLocationByQuery(String query) {
+        Location location = locationDaoImpl().getLocationByIP(query);
+        if (Objects.isNull(location)) {
+            throw new WebApplicationException(String.format(LOCATION_NOT_FOUND, query), Status.NOT_FOUND);
+        }
+        return location;
     }
 
     public Location createLocationInfo(Location location) {
-        Location newLocation = new Location(location.getId(), location.getQuery(), location.getStatus(),
-                location.getCountry(), location.getCountryCode(), location.getRegion(),
-                location.getRegionName(), location.getCity(), location.getZip(),
-                location.getLat(), location.getLon(), location.getTimezone(),
-                location.getIsp(), location.getOrg(), location.getAs());
-        locationDAO.save(newLocation);
-        //return locationDAO().getLocation(locationDAO().lastInsertId());
-        return null;
+        locationDaoImpl().createLocation(location);
+        return locationDaoImpl().getLocation(locationDaoImpl().lastInsertId());
+    }
+
+//    public Location editLocation(Location location) {
+//        if (Objects.isNull(locationDaoImpl().getLocation(location.getId()))) {
+//            throw new WebApplicationException(String.format(LOCATION_NOT_FOUND, location.getId()),
+//                    Status.NOT_FOUND);
+//        }
+//        locationDaoImpl().editLocation(location);
+//        return locationDaoImpl().getLocation(location.getId());
+//    }
+
+    public String deleteLocation(final Integer id) {
+        int result = locationDaoImpl().deleteLocation(id);
+        switch (result) {
+            case 1:
+                return SUCCESS;
+            case 0:
+                throw new WebApplicationException(String.format(LOCATION_NOT_FOUND, id), Status.NOT_FOUND);
+            default:
+                throw new WebApplicationException(UNEXPECTED_DELETE_ERROR, Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
     public String performHealthCheck() {
         try {
-            return "good";
+            locationDaoImpl().getLocations();
         } catch (UnableToObtainConnectionException ex) {
             return checkUnableToObtainConnectionException(ex);
         } catch (UnableToExecuteStatementException ex) {
@@ -52,6 +82,7 @@ public class LocationService {
         } catch (Exception ex) {
             return UNEXPECTED_DATABASE_ERROR + ex.getCause().getLocalizedMessage();
         }
+        return null;
     }
 
     private String checkUnableToObtainConnectionException(UnableToObtainConnectionException ex) {

@@ -9,7 +9,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class GeoConfiguration extends Configuration {
     private static final String DATABASE = "database";
 
