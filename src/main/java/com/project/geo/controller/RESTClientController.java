@@ -1,8 +1,7 @@
 package com.project.geo.controller;
 
-import com.project.geo.domain.Location;
+import com.project.geo.dao.GeoLocation;
 import com.project.geo.util.LocationUtil;
-import io.dropwizard.hibernate.UnitOfWork;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -22,8 +21,7 @@ public class RESTClientController {
 
     @GET
     @Path("/{ipaddress}")
-    @UnitOfWork
-    public Location getEmployeeById(@PathParam("ipaddress") String ipaddress)
+    public GeoLocation getEmployeeById(@PathParam("ipaddress") String ipaddress)
     {
         return LocationUtil.getLocationFromExternalAPI(client,ipaddress);
     }

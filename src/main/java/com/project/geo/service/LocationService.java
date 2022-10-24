@@ -1,10 +1,11 @@
 package com.project.geo.service;
 
+import com.project.geo.dao.GeoLocation;
 import com.project.geo.domain.Location;
 import com.project.geo.dao.LocationDaoImpl;
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
-import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
-import org.skife.jdbi.v2.sqlobject.CreateSqlObject;
+import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
+import org.jdbi.v3.sqlobject.CreateSqlObject;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +30,8 @@ public abstract class LocationService {
     @CreateSqlObject
     abstract LocationDaoImpl locationDaoImpl();
 
-    public Location getLocation(Integer id) {
-        Location location = locationDaoImpl().getLocation(id);
+    public GeoLocation getLocation(String id) {
+        GeoLocation location = locationDaoImpl().getLocation(id);
         logger.info(location.toString());
         if (Objects.isNull(location)) {
             throw new WebApplicationException(String.format(LOCATION_NOT_FOUND, id), Status.NOT_FOUND);
@@ -38,20 +39,20 @@ public abstract class LocationService {
         return location;
     }
 
-    public Location getLocationByQuery(String query) {
-        Location location = locationDaoImpl().getLocationByIP(query);
+    public GeoLocation getLocationByQuery(String query) {
+        GeoLocation location = locationDaoImpl().getLocationByIP(query);
         if (Objects.isNull(location)) {
             throw new WebApplicationException(String.format(LOCATION_NOT_FOUND, query), Status.NOT_FOUND);
         }
         return location;
     }
 
-    public Location createLocationInfo(Location location) {
+    public GeoLocation createLocationInfo(GeoLocation location) {
         locationDaoImpl().createLocation(location);
         return locationDaoImpl().getLocation(locationDaoImpl().lastInsertId());
     }
 
-//    public Location editLocation(Location location) {
+//    public GeoLocation editLocation(GeoLocation location) {
 //        if (Objects.isNull(locationDaoImpl().getLocation(location.getId()))) {
 //            throw new WebApplicationException(String.format(LOCATION_NOT_FOUND, location.getId()),
 //                    Status.NOT_FOUND);
@@ -60,7 +61,7 @@ public abstract class LocationService {
 //        return locationDaoImpl().getLocation(location.getId());
 //    }
 
-    public String deleteLocation(final Integer id) {
+    public String deleteLocation(final String id) {
         int result = locationDaoImpl().deleteLocation(id);
         switch (result) {
             case 1:
@@ -75,8 +76,8 @@ public abstract class LocationService {
     public String performHealthCheck() {
         try {
             locationDaoImpl().getLocations();
-        } catch (UnableToObtainConnectionException ex) {
-            return checkUnableToObtainConnectionException(ex);
+        } catch (UnableToCreateStatementException ex) {
+            return checkUnableToCreateStatementException(ex);
         } catch (UnableToExecuteStatementException ex) {
             return checkUnableToExecuteStatementException(ex);
         } catch (Exception ex) {
@@ -85,7 +86,7 @@ public abstract class LocationService {
         return null;
     }
 
-    private String checkUnableToObtainConnectionException(UnableToObtainConnectionException ex) {
+    private String checkUnableToCreateStatementException(UnableToCreateStatementException ex) {
         if (ex.getCause() instanceof java.sql.SQLNonTransientConnectionException) {
             return DATABASE_ACCESS_ERROR + ex.getCause().getLocalizedMessage();
         } else if (ex.getCause() instanceof java.sql.SQLException) {

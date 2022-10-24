@@ -1,4 +1,4 @@
-package com.project.geo.domain;
+package com.project.geo.dao;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.Length;

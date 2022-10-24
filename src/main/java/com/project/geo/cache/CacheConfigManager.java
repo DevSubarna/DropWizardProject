@@ -4,7 +4,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.CacheStats;
 import com.google.common.cache.LoadingCache;
-import com.project.geo.domain.Location;
+import com.project.geo.dao.GeoLocation;
 import com.project.geo.service.LocationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ public class CacheConfigManager {
         return cacheConfigManager;
     }
 
-    private static LoadingCache<String, Location> locationCache;
+    private static LoadingCache<String, GeoLocation> locationCache;
 
     public void initLocationCache(LocationService locationService) {
         if(locationCache == null) {
@@ -30,9 +30,9 @@ public class CacheConfigManager {
                     .maximumSize(200)
                     .expireAfterAccess(30, TimeUnit.MINUTES)
                     .recordStats()
-                    .build(new CacheLoader<String, Location>() {
+                    .build(new CacheLoader<String, GeoLocation>() {
                         @Override
-                        public Location load(String query) throws Exception {
+                        public GeoLocation load(String query) throws Exception {
                             logger.info("Fetching Location Data from DB/ Cache Miss");
                             return locationService.getLocationByQuery(query);
                         }
@@ -40,7 +40,7 @@ public class CacheConfigManager {
         }
     }
 
-    public Location getLocationDataFromCache(String query) {
+    public GeoLocation getLocationDataFromCache(String query) {
         try {
             CacheStats cacheStats = locationCache.stats();
             logger.info("CacheStats = {} ", cacheStats);

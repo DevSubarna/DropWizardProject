@@ -1,38 +1,37 @@
 package com.project.geo.dao;
 
-import com.project.geo.domain.Location;
-import org.skife.jdbi.v2.sqlobject.Bind;
-import org.skife.jdbi.v2.sqlobject.BindBean;
-import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.SqlUpdate;
-import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.customizer.BindBean;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 
 import java.util.List;
 
-@RegisterMapper(LocationMapper.class)
+@RegisterBeanMapper(LocationMapper.class)
 public interface LocationDaoImpl {
 
-    @SqlQuery("select * from locations;")
-    public List<Location> getLocations();
+    @SqlQuery("select * from geolocation;")
+    public List<GeoLocation> getLocations();
 
-    @SqlQuery("select * from location where id = :id")
-    public Location getLocation(@Bind("id") final Integer id);
+    @SqlQuery("select * from geolocation where id = :id")
+    public GeoLocation getLocation(@Bind("id") final String id);
 
-    @SqlQuery("select * from location where query = :query")
-    public Location getLocationByIP(@Bind("query") final String query);
+    @SqlQuery("select * from geolocation where query = :query")
+    public GeoLocation getLocationByIP(@Bind("query") final String query);
 
-    @SqlUpdate("insert into location(query, status, country, countryCode, region, regionName, " +
-            "city, zip, lat, lon, timezone, isp, org, as) values(:query, :status, :country, :countryCode, :region, " +
-            ":regionName, :city, :zip, :lat, :lon, :timezone, :isp, :org, :as)")
-    void createLocation(@BindBean final Location location);
+    @SqlUpdate("insert into geolocation(id, query, status, country, countryCode, region, regionName, " +
+            "city, zip, lat, lon, timezone, isp, org, asset) values(:id, :query, :status, :country, :countryCode, :region, " +
+            ":regionName, :city, :zip, :lat, :lon, :timezone, :isp, :org, :asset)")
+    void createLocation(@BindBean final GeoLocation location);
 
-    @SqlUpdate("update location set query = coalesce(:query, query) where id = :id")
-    void editLocation(@BindBean final Location location);
+    @SqlUpdate("update geolocation set query = coalesce(:query, query) where id = :id")
+    void editLocation(@BindBean final GeoLocation location);
 
-    @SqlUpdate("delete from location where id = :id")
-    int deleteLocation(@Bind("id") final Integer id);
+    @SqlUpdate("delete from geolocation where id = :id")
+    int deleteLocation(@Bind("id") final String id);
 
     @SqlQuery("select last_insert_id();")
-    public Integer lastInsertId();
+    public String lastInsertId();
 }
 

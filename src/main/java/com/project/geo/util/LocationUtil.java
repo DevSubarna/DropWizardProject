@@ -1,5 +1,6 @@
 package com.project.geo.util;
 
+import com.project.geo.dao.GeoLocation;
 import com.project.geo.domain.Location;
 
 import javax.ws.rs.client.Client;
@@ -12,11 +13,11 @@ public class LocationUtil {
 
     private static String url = "http://ip-api.com/json/";
 
-    public static Location getLocationFromExternalAPI(Client client, String ip) {
+    public static GeoLocation getLocationFromExternalAPI(Client client, String ip) {
         WebTarget webTarget = client.target(url + ip);
         Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON);
         Response response = invocationBuilder.get();
-        Location location = response.readEntity(Location.class);
+        GeoLocation location = response.readEntity(GeoLocation.class);
         System.out.println(location.toString());
         // todo save in database
         return location;
