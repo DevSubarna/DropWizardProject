@@ -7,8 +7,6 @@ import com.project.geo.resource.LocationResource;
 import com.project.geo.util.LocationUtils;
 import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.db.PooledDataSourceFactory;
-import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.jdbi3.bundles.JdbiExceptionsBundle;
 import io.dropwizard.setup.Bootstrap;
