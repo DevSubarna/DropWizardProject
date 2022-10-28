@@ -4,8 +4,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.CacheStats;
 import com.google.common.cache.LoadingCache;
-import com.project.geo.test.modelS.GeoLocation;
-import com.project.geo.test.repositoryS.LocationRepository;
+import com.project.geo.domain.model.GeoLocation;
+import com.project.geo.repository.LocationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

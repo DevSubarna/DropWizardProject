@@ -1,25 +1,49 @@
 package com.project.geo.repository;
 
-import com.project.geo.dao.GeoLocation;
+import com.project.geo.domain.LocationDAO;
+import com.project.geo.domain.jdbi.LocationJDBIImpl;
+import com.project.geo.domain.model.GeoLocation;
+import org.jdbi.v3.core.Jdbi;
 
-import javax.ws.rs.client.Client;
-import java.util.Objects;
+import java.util.List;
+import java.util.UUID;
 
-public class LocationRepository {
+public class LocationRepository implements LocationDAO {
 
-    public final CacheConfigManager cacheConfigManager;
-    public final Client client;
+    private final Jdbi jdbi;
 
-    public LocationRepository(CacheConfigManager cacheConfigManager, Client client) {
-        this.cacheConfigManager = cacheConfigManager;
-        this.client = client;
+    public LocationRepository(Jdbi jdbi) {
+        this.jdbi = jdbi;
     }
 
-    public GeoLocation findByIP(final String ip) {
-        if(Objects.isNull(cacheConfigManager.getLocationDataFromCache(ip))) {
-            return null;
-            //return LocationUtil.getLocationFromExternalAPI(client,ip);
-        } else return cacheConfigManager.getLocationDataFromCache(ip);
+    @Override
+    public List<GeoLocation> getLocations() {
+        return jdbi.withExtension(LocationJDBIImpl.class, dao -> dao.getLocations());
     }
 
+    @Override
+    public GeoLocation getLocation(String id) {
+        return jdbi.withExtension(LocationJDBIImpl.class, dao -> dao.getLocation(id));
+    }
+
+    @Override
+    public GeoLocation getLocationByIP(String query) {
+        return jdbi.withExtension(LocationJDBIImpl.class, dao -> dao.getLocationByIP(query));
+    }
+
+    @Override
+    public GeoLocation createLocation(GeoLocation location) {
+        String lastId = jdbi.withExtension(LocationJDBIImpl.class, dao -> {
+            String id = UUID.randomUUID().toString();
+            location.setId(id);
+            dao.createLocation(location);
+            return dao.lastInsertId();
+        });
+        return getLocation(lastId);
+    }
+
+    @Override
+    public String lastInsertId() {
+        return jdbi.withExtension(LocationJDBIImpl.class, dao -> dao.lastInsertId());
+    }
 }

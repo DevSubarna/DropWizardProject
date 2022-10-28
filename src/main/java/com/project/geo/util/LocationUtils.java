@@ -1,6 +1,6 @@
 package com.project.geo.util;
 
-import com.project.geo.dao.GeoLocation;
+import com.project.geo.domain.model.GeoLocation;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
@@ -8,11 +8,11 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-public class LocationUtil {
-
+public class LocationUtils {
     private static String url = "http://ip-api.com/json/";
     private final Client client;
-    public LocationUtil(Client client) {
+
+    public LocationUtils(Client client) {
         this.client = client;
     }
 
@@ -22,7 +22,6 @@ public class LocationUtil {
         Response response = invocationBuilder.get();
         GeoLocation location = response.readEntity(GeoLocation.class);
         System.out.println(location.toString());
-        // todo save in database
         return location;
     }
 }
