@@ -1,19 +1,19 @@
 package com.project.geo;
 
-import com.project.geo.cache.CacheConfigManager;
 import com.project.geo.config.GeoConfiguration;
 import com.project.geo.controller.LocationController;
-import com.project.geo.controller.LocationJdbiController;
-import com.project.geo.controller.RESTClientController;
-import com.project.geo.dao.LocationDaoImpl;
 import com.project.geo.domain.Location;
 import com.project.geo.domain.LocationDAO;
-import com.project.geo.service.LocationService;
+import com.project.geo.cache.CacheConfigManager;
+import com.project.geo.test.repositoryS.LocationRepository;
+import com.project.geo.test.resourceS.LocationResource;
+import com.project.geo.test.util.LocationUtils;
 import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.db.PooledDataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.jdbi3.JdbiFactory;
+import io.dropwizard.jdbi3.bundles.JdbiExceptionsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.jdbi.v3.core.Jdbi;
@@ -32,7 +32,8 @@ public class App extends Application<GeoConfiguration> {
 
     @Override
     public void initialize(Bootstrap<GeoConfiguration> b) {
-        b.addBundle(hibernateBundle);
+        //b.addBundle(hibernateBundle);
+        b.addBundle(new JdbiExceptionsBundle());
     }
 
     @Override
@@ -41,20 +42,35 @@ public class App extends Application<GeoConfiguration> {
 
         //usingHibernate(configuration, environment);
 
+
+//        final LocationUtil locationUtil = new LocationUtil(client);
+//        environment.jersey().register(locationUtil);
+
         final JdbiFactory factory = new JdbiFactory();
         final Jdbi jdbi = factory.build(environment, configuration.getDataSourceFactory(),SQL);
-        final LocationDaoImpl dao = jdbi.onDemand(LocationDaoImpl.class);
-        final LocationJdbiController controller = new LocationJdbiController(dao);
-        environment.jersey().register(controller);
 
-        CacheConfigManager cacheConfigManager = CacheConfigManager
-                .getInstance();
+
+//        final LocationDaoImpl dao = jdbi.onDemand(LocationDaoImpl.class);
+//        final CacheConfigManager cacheConfigManager = CacheConfigManager
+//                .getInstance();
+//        cacheConfigManager.initLocationCache(dao);
+//        final LocationJdbiController controller = new LocationJdbiController(dao, cacheConfigManager, locationUtil);
+//        environment.jersey().register(controller);
+
+        // change structure
+        final LocationRepository locationRepository = new LocationRepository(jdbi);
+        final CacheConfigManager cache = CacheConfigManager.getInstance();
+        cache.initLocationCache(locationRepository);
+        final Client client = new JerseyClientBuilder(environment).build("dropwizardclient");
+        final LocationUtils locationUtils = new LocationUtils(client);
+        environment.jersey().register(new LocationResource(new LocationRepository(jdbi),cache,locationUtils));
+
+
         //cacheConfigManager.initLocationCache(jdbi.onDemand(LocationService.class));
 
         //environment.jersey().register(new CacheResource());
 
-        final Client client = new JerseyClientBuilder(environment).build("dropwizardclient");
-        environment.jersey().register(new RESTClientController(client));
+
     }
 
     public void usingHibernate(GeoConfiguration configuration, Environment environment) {

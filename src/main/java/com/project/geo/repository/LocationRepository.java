@@ -1,9 +1,6 @@
 package com.project.geo.repository;
 
-import com.project.geo.cache.CacheConfigManager;
 import com.project.geo.dao.GeoLocation;
-import com.project.geo.domain.Location;
-import com.project.geo.util.LocationUtil;
 
 import javax.ws.rs.client.Client;
 import java.util.Objects;
@@ -20,7 +17,8 @@ public class LocationRepository {
 
     public GeoLocation findByIP(final String ip) {
         if(Objects.isNull(cacheConfigManager.getLocationDataFromCache(ip))) {
-            return LocationUtil.getLocationFromExternalAPI(client,ip);
+            return null;
+            //return LocationUtil.getLocationFromExternalAPI(client,ip);
         } else return cacheConfigManager.getLocationDataFromCache(ip);
     }
 
