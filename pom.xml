@@ -12,7 +12,6 @@
         <maven.compiler.source>18</maven.compiler.source>
         <maven.compiler.target>18</maven.compiler.target>
         <dropwizard.version>2.0.22</dropwizard.version>
-<!--        <jdbi.version>3.0.1</jdbi.version>-->
     </properties>
 
     <dependencies>
